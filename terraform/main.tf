@@ -10,7 +10,7 @@ terraform {
 
   # ---- EDIT THIS: replace with the S3 bucket name you created for Terraform state ----
   backend "s3" {
-    bucket = "YOUR-TERRAFORM-STATE-BUCKET"
+    bucket = "formflow-terraform-state-13382"
     key    = "formflow/terraform.tfstate"
     region = "us-east-1"
   }
