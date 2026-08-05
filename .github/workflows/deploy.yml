@@ -46,6 +46,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug OIDC context
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Ref: $GITHUB_REF"
+          echo "Event name: $GITHUB_EVENT_NAME"  
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -84,18 +89,24 @@ jobs:
 
       - name: Write .env on server
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          MONGO_ROOT_USER: ${{ secrets.MONGO_ROOT_USER }}
+          MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+          CLIENT_PORT: ${{ secrets.APP_CLIENT_PORT }}
+          SERVER_PORT: ${{ secrets.APP_SERVER_PORT }}
         with:
           host: ${{ needs.provision.outputs.instance_ip }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             mkdir -p ~/formflow
-            cat > ~/formflow/.env << 'ENVEOF'
-            DOCKERHUB_USER=${{ secrets.DOCKERHUB_USERNAME }}
-            MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}
-            MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}
-            CLIENT_PORT=${{ secrets.APP_CLIENT_PORT }}
-            SERVER_PORT=${{ secrets.APP_SERVER_PORT }}
+            cat > ~/formflow/.env << ENVEOF
+            DOCKERHUB_USER=$DOCKERHUB_USER
+            MONGO_ROOT_USER=$MONGO_ROOT_USER
+            MONGO_ROOT_PASSWORD=$MONGO_ROOT_PASSWORD
+            CLIENT_PORT=$CLIENT_PORT
+            SERVER_PORT=$SERVER_PORT
             ENVEOF
 
       - name: Pull images and start containers
