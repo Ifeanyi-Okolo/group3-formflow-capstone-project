@@ -65,7 +65,7 @@ jobs:
         working-directory: ./terraform
         run: |
           terraform init
-  #       terraform apply -auto-approve
+          #terraform apply -auto-approve
           terraform destroy -auto-approve
           echo "public_ip=$(terraform output -raw public_ip)" >> "$GITHUB_OUTPUT"
 
