@@ -1,12 +1,12 @@
 services:
   client:
-    image: DOCKERHUB_USER/formflow-client:latest
+    image: ${DOCKERHUB_USER}/formflow-client:latest
     ports:
       - "${CLIENT_PORT}"
     restart: unless-stopped
 
   server:
-    image: DOCKERHUB_USER/formflow-server:latest
+    image: ${DOCKERHUB_USER}/formflow-server:latest
     ports:
       - "${SERVER_PORT}"
     env_file:
