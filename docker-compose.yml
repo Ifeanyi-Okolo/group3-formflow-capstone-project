@@ -1,0 +1,30 @@
+services:
+  client:
+    image: ${DOCKERHUB_USER}/formflow-client:latest
+    ports:
+      - "${CLIENT_PORT}"
+    restart: unless-stopped
+
+  server:
+    image: ${DOCKERHUB_USER}/formflow-server:latest
+    ports:
+      - "${SERVER_PORT}"
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/mydatabase?authSource=admin
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo_data:

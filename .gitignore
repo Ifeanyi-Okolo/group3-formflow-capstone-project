@@ -1,3 +1,13 @@
 .ENV
+.env
 
 *.log
+
+node_modules/
+dist/
+.DS_Store
+terraform-policy.json
+.terraform.lock.hcl
+*.tfstate.*
+*.tfstate
+.terraform/

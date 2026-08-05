@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::498976383448:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": [
+            "repo:ceoemyrex/gatherloop:ref:refs/heads/main",
+            "repo:Ifeanyi-Okolo@291582534/group3-formflow-capstone-project@1305698611:ref:refs/heads/main",
+            "repo:Ifeanyi-Okolo/group3-formflow-capstone-project:ref:refs/heads/main"
+          ]
+        }
+      }
+    }
+  ]
+}
