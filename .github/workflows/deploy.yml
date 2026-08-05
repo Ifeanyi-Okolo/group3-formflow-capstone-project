@@ -42,7 +42,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.pyml"
+          source: "docker-compose.yml"
           target: "~/formflow"
 
       - name: Pull and restart containers on EC2
