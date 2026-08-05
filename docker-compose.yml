@@ -11,6 +11,10 @@ services:
       - "${SERVER_PORT}"
     env_file:
       - .env
+    environment:
+      - MONGO_URI=mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/mydatabase?authSource=admin
+    depends_on:
+      - mongodb
     restart: unless-stopped
 
   mongodb:
