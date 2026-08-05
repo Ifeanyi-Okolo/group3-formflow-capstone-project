@@ -1,20 +1,34 @@
 terraform {
+  required_version = ">= 1.5.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  # ---- EDIT THIS: replace with the S3 bucket name you created for Terraform state ----
   backend "s3" {
-    bucket = "TERRAFORM_STATE_BUCKET"
+    bucket = "YOUR-TERRAFORM-STATE-BUCKET"
     key    = "formflow/terraform.tfstate"
-    region = "AWS_REGION"
+    region = "us-east-1"
   }
 }
 
 provider "aws" {
-  region = "AWS_REGION"
+  region = "us-east-1"
 }
 
+# ---------------------------------------------------------------------------
+# Security group: SSH, HTTP (client), and the server's exposed port
+# ---------------------------------------------------------------------------
 resource "aws_security_group" "formflow_sg" {
-  name        = "AWS-RESOURCE-NAME"
+  name        = "formflow-sg"
   description = "FormFlow app security group"
 
   ingress {
+    description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -22,6 +36,7 @@ resource "aws_security_group" "formflow_sg" {
   }
 
   ingress {
+    description = "HTTP (client)"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -29,6 +44,7 @@ resource "aws_security_group" "formflow_sg" {
   }
 
   ingress {
+    description = "Server API"
     from_port   = 5000
     to_port     = 5000
     protocol    = "tcp"
@@ -41,20 +57,31 @@ resource "aws_security_group" "formflow_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "formflow-sg"
+  }
 }
 
+# ---------------------------------------------------------------------------
+# Always use the latest Ubuntu 22.04 LTS AMI for the region
+# ---------------------------------------------------------------------------
 data "aws_ssm_parameter" "ubuntu_ami" {
   name = "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
 }
 
+# ---------------------------------------------------------------------------
+# EC2 instance: installs Docker automatically on first boot via user_data
+# ---------------------------------------------------------------------------
 resource "aws_instance" "formflow_server" {
   ami                    = data.aws_ssm_parameter.ubuntu_ami.value
   instance_type          = "t2.micro"
-  key_name               = "formflow-key"
+  key_name               = "formflow-key" # must already exist in this AWS account/region
   vpc_security_group_ids = [aws_security_group.formflow_sg.id]
 
   user_data = <<-EOF
     #!/bin/bash
+    set -e
     curl -fsSL https://get.docker.com -o get-docker.sh
     sh get-docker.sh
     usermod -aG docker ubuntu
@@ -62,7 +89,9 @@ resource "aws_instance" "formflow_server" {
     chown ubuntu:ubuntu /home/ubuntu/formflow
   EOF
 
-  tags = { Name = "formflow-server" }
+  tags = {
+    Name = "formflow-server"
+  }
 }
 
 output "public_ip" {
