@@ -87,6 +87,15 @@ jobs:
           source: "docker-compose.yml"
           target: "~/formflow"
 
+      - name: Debug secret presence (masked)
+        run: |
+          echo "DOCKERHUB_USERNAME length: ${#DOCKERHUB_USERNAME}"
+          echo "MONGO_ROOT_USER length: ${#MONGO_ROOT_USER}"
+          echo "APP_CLIENT_PORT length: ${#APP_CLIENT_PORT}"
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          MONGO_ROOT_USER: ${{ secrets.MONGO_ROOT_USER }}
+          APP_CLIENT_PORT: ${{ secrets.APP_CLIENT_PORT }}
       - name: Write .env on server
         uses: appleboy/ssh-action@v1.0.3
         env:
